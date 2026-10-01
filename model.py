@@ -46,3 +46,16 @@ class Rubric(db.Model):
     max_marks = db.Column(db.Integer)
     weightage = db.Column(db.Integer)
     description = db.Column(db.Text)
+
+class ExaminationSlot(db.Model):
+    __tablename__ = "slots"
+
+    id = db.Column(db.Integer, primary_key=True)
+    examination_id = db.Column(db.Integer, db.ForeignKey("examinations.id"), nullable=False)
+    examiner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    date = db.Column(db.Date)
+    start_time = db.Column(db.Date)
+    end_time = db.Column(db.Date)
+    capacity = db.Column(db.Integer)
+    available_seats = db.Column(db.Integer)
+    status = db.Column(db.String(30), default="Available")
