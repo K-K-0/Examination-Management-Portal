@@ -23,7 +23,7 @@ class Course(db.Model):
     status = db.Column(db.String(20), default="Active")
 
 class Examination(db.Model):
-    __tablename__ = "examination"
+    __tablename__ = "examinations"
 
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
@@ -37,4 +37,12 @@ class Examination(db.Model):
     booking_end = db.Column(db.Date)
     status = db.Column(db.String(30))
 
-    
+class Rubric(db.Model):
+    __tablename__ = "rubrics"
+
+    id = db.Column(db.integer, primary_key=True)
+    examination_id = db.Collumn(db.Integer, db.ForeignKey("examinations.id"), nullable=False)
+    criterion = db.Column(db.String(80))
+    max_marks = db.Column(db.Integer)
+    weightage = db.Column(db.Integer)
+    description = db.Column(db.Text)
