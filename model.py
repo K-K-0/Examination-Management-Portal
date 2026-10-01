@@ -69,3 +69,6 @@ class Booking(db.Model):
     booking_date = db.Column(db.Date)
     status = db.Column(db.String(30), default="Booked")
 
+    marks = db.Column(db.Integer)
+    note = db.Column(db.Text)
+
