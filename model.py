@@ -13,3 +13,11 @@ class User(UserMixin, db.Model):
     role = db.Column(db.string(100), nullable=False)
     is_examiner = db.Column(db.Boolean, default=False)
 
+class Course(db.Model):
+    __tablename__ = "course"
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(20), unique=True, nullable=False) 
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    status = db.Column(db.String(20), default="Active")
