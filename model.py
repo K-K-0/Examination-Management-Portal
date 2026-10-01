@@ -59,3 +59,13 @@ class ExaminationSlot(db.Model):
     capacity = db.Column(db.Integer)
     available_seats = db.Column(db.Integer)
     status = db.Column(db.String(30), default="Available")
+
+class Booking(db.Model):
+    __tablename__ = "bookings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    slot_id = db.Column(db.Integer, db.ForeignKey("slots.id"), nullable=False)
+    booking_date = db.Column(db.Date)
+    status = db.Column(db.String(30), default="Booked")
+
