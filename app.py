@@ -86,11 +86,48 @@ def delete_course(id):
 
 
 
+@app.route("/admin/examination")
+@login_required
+def view_examinations():
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    examinations = Examination.query.all()
+
+    return render_template("admin/examination.html", examinations=examinations)
 
 
+@app.route("/admin/examination/add", methods=["GET", "POST"])
+@login_required
+def add_examinations():
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
 
+    courses = Course.query.all()
 
+    if request.method == "POST":
 
+        exam = Examination(
+            course_id=request.form["course_id"],
+            name=request.form("name"),
+            exam_type=request.form["exam_type"],
+            duration=request.form["duration"],
+            max_marks=request.form["max_marks"],
+            slot_creation_start=request.form["slot_start"],
+            slot_creation_end=request.form["slot_end"],
+            booking_start=request.form["booking_start"],
+            booking_end=request.form["booking_end"],
+            status=request.form["status"]
+        )
+
+        db.session.add(exam)
+        db.session.commit()
+
+        flash("exam created successfully", "success")
+
+        return redirect(url_for("view_examination"))
+
+    return render_template("admin/add_examination.html", courses=courses)
 
 
 
