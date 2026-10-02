@@ -68,7 +68,5 @@ class Booking(db.Model):
     slot_id = db.Column(db.Integer, db.ForeignKey("slots.id"), nullable=False)
     booking_date = db.Column(db.Date)
     status = db.Column(db.String(30), default="Booked")
-
     marks = db.Column(db.Integer)
     note = db.Column(db.Text)
-
