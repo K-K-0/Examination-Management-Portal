@@ -70,11 +70,18 @@ def edit_courses(id):
 
     return render_template("admin/edit_course.html", course=course)
 
+@app.route("/admin/course/delete/<int:id>")
+@login_required
+def delete_course(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
 
+    course = Course.query.get_or_404(id)
+    db.session.delete(course)
+    db.session.commit()
 
-
-
-
+    flash("course deleted successfully", "success")
+    return redirect(url_for("view_courses"))
 
 
 
