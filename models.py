@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.string(100), nullable=False)
+    role = db.Column(db.String(100), nullable=False)
     is_examiner = db.Column(db.Boolean, default=False)
 
 class Course(db.Model):
@@ -40,8 +40,8 @@ class Examination(db.Model):
 class Rubric(db.Model):
     __tablename__ = "rubrics"
 
-    id = db.Column(db.integer, primary_key=True)
-    examination_id = db.Collumn(db.Integer, db.ForeignKey("examinations.id"), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    examination_id = db.Column(db.Integer, db.ForeignKey("examinations.id"), nullable=False)
     criterion = db.Column(db.String(80))
     max_marks = db.Column(db.Integer)
     weightage = db.Column(db.Integer)
