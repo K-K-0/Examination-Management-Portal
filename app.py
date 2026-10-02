@@ -33,10 +33,10 @@ def add_courses():
 
     if request.method == "POST":
         course = Course(
-            code=request.form("code")
-            name=request.form("name")
-            description=request.form("description")
-            status=request.form("status")
+            code=request.form["code"],
+            name=request.form["name"],
+            description=request.form["description"],
+            status=request.form["status"]
         )
 
         db.session.add(course)
@@ -58,10 +58,10 @@ def edit_courses(id):
     
     if request.method == "POST":
         
-        course.code=request.form("code")
-        course.name=request.form("name")
-        course.description=request.form("description")
-        course.status=request.form("status")
+        course.code=request.form["code"]
+        course.name=request.form["name"]
+        course.description=request.form["description"]
+        course.status=request.form["status"]
 
         db.session.commit()
 
