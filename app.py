@@ -1,6 +1,6 @@
 from flask import Flask
 from models import db, User, Booking, Course, Examination, ExaminationSlot, Rubric
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, Blueprint
 from flask_login import LoginManager , login_user, login_required, logout_user, current_user
 
 app = Flask(__name__)
@@ -10,9 +10,60 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "Nothing"
 
 db.init_app(app)
-loginmanager = LoginManager()
-loginmanager.init_app(app)
-loginmanager.login_view = "login"
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+auth = Blueprint('auth', __name__)
+    
+@auth.route('/', methods=['POST', 'GET'])
+def register():
+    if request.method == 'POST':
+        name = request.form["name"]
+        email = request.form['email']
+        password = request.form['password']
+        role = request.form['role']
+        
+        if User.query.filter_by(email=email).first():
+            flash('username already registered')
+            return redirect(url_for('register'))
+        
+        new_user = User(name=name,email=email, password=password, role=role)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Registration successfully. pls login')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html') 
+    
+@auth.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        user = User.query.filter_by(email=email, password=password).first()
+        
+        if not user:
+            flash('Invalid credentials')
+            return redirect(url_for('login'))
+        
+        login_user(user)
+        flash('logged in successfully')
+    
+    
+        if user.is_admin:
+            return redirect(url_for('auth.admin_dashboard'))
+        else:
+            return redirect(url_for('auth.user_dashboard'))  
+        
+    return render_template('login.html')
 
 
 @app.route("/admin/courses")
@@ -176,7 +227,6 @@ def delete_examinations(id):
     flash("exam deleted successfully", "success")
 
     return redirect(url_for("view_examination"))
-
 
 
 with app.app_context():
