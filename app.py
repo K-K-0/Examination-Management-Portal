@@ -162,9 +162,20 @@ def add_examinations(id):
     return render_template("admin/add_examination.html", courses=courses, exam=exam)
 
 
+@app.route("/admin/examination/delete/<int:id>")
+@login_required
+def delete_examinations(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
 
+    exam = Examination.query.get_or_404(id)
 
+    db.session.delete(exam)
+    db.session.commit()
 
+    flash("exam deleted successfully", "success")
+
+    return redirect(url_for("view_examination"))
 
 
 
