@@ -229,6 +229,103 @@ def delete_examinations(id):
     return redirect(url_for("view_examination"))
 
 
+
+@app.route("/admin/rubrics")
+@login_required
+def view_rubrics():
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+    rubrics = Rubric.query.all()
+
+    return render_template("admin/rubrics.html", rubrics=rubrics)
+
+
+@app.route("/admin/rubrics/add", methods=["GET", "POST"])
+@login_required
+def add_rubrics():
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    exam = Examination.query.all()
+
+    if request.method == "POST":
+
+        rubric = Rubric(
+            examination_id=request.form["exam"],
+            criterion=request.form["criterion"],
+            max_marks=request.form["max_marks"],
+            weightage=request.form["weightage"],
+            description=request.form["description"]
+        )
+
+        db.session.add(rubric)
+        db.session.commit()
+
+        flash("rubric created successfully")
+
+        return redirect(url_for("view_rubrics"))
+
+    return render_template("admin/add_rubric.html", exam=exam)
+
+@app.route("/admin/rubrics/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_rubrics(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    exam = Examination.query.all()
+    rubric = Rubric.query.get_or_404(id)
+
+    if request.method == "POST":
+
+        
+        rubric.examination_id=request.form["exam"],
+        rubric.criterion=request.form["criterion"],
+        rubric.max_marks=request.form["max_marks"],
+        rubric.weightage=request.form["weightage"],
+        rubric.description=request.form["description"]
+        
+        db.session.commit()
+
+        flash("rubric updated successfully")
+
+        return redirect(url_for("view_rubrics"))
+
+    return render_template("admin/edit_rubric.html", exam=exam, rubric=rubric)
+
+
+@app.route("/admin/rubrics/delete/<int:id>")
+@login_required
+def edit_rubrics(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+    
+    rubric = Rubric.query.get_or_404(id)
+    db.session.delete(rubric)
+    db.session.commit()
+
+    flash("Rubric deleted successfully")
+
+    return redirect(url_for("view_rubrics"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
