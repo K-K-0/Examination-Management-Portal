@@ -47,7 +47,28 @@ def add_courses():
 
     return render_template("admin/add_course.html")
 
+@app.route("/admin/courses/edit/<int:id>", methods=["GET", "POST"])
+@login_required
 
+def edit_courses(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    course = Course.query.get_or_404(id)
+    
+    if request.method == "POST":
+        
+        course.code=request.form("code")
+        course.name=request.form("name")
+        course.description=request.form("description")
+        course.status=request.form("status")
+
+        db.session.commit()
+
+        flash("course updated successfully", "success")
+        return redirect(url_for("view_courses"))
+
+    return render_template("admin/edit_course.html", course=course)
 
 
 
