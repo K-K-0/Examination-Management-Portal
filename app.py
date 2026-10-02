@@ -129,6 +129,38 @@ def add_examinations():
 
     return render_template("admin/add_examination.html", courses=courses)
 
+@app.route("/admin/examination/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def add_examinations(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    exam = Examination.query.get_or_404(id)
+    courses = Course.query.all()
+
+    if request.method == "POST":
+
+        
+        exam.course_id=request.form["course_id"],
+        exam.name=request.form("name"),
+        exam.exam_type=request.form["exam_type"],
+        exam.duration=request.form["duration"],
+        exam.max_marks=request.form["max_marks"],
+        exam.slot_creation_start=request.form["slot_start"],
+        exam.slot_creation_end=request.form["slot_end"],
+        exam.booking_start=request.form["booking_start"],
+        exam.booking_end=request.form["booking_end"],
+        exam.status=request.form["status"]
+
+        
+        db.session.commit()
+
+        flash("exam updated successfully", "success")
+
+        return redirect(url_for("view_examination"))
+
+    return render_template("admin/add_examination.html", courses=courses, exam=exam)
+
 
 
 
