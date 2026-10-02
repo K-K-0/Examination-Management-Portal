@@ -309,11 +309,49 @@ def edit_rubrics(id):
     return redirect(url_for("view_rubrics"))
 
 
+@app.route("/admin/examiner")
+@login_required
+def view_examiners():
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    examiners = User.query.filter_by(role="examiner").all()
+
+    return render_template("admin/examiner", examiners=examiners)
 
 
+@app.route("/admin/examiner/approve/<int:id>")
+@login_required
+def approve_examiner(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
+
+    examiner = User.query.get_or_404(id)
+
+    examiner.is_examiner = True
+
+    db.session.commit()
+
+    flash("Examiner Approved successfelly")
+
+    return redirect(url_for("view_examiners"))
 
 
+@app.route("/admin/examiner/disapprove/<int:id>")
+@login_required
+def disapprove_examiner(id):
+    if current_user.role != 'admin':
+        return redirect(url_for("login"))
 
+    examiner = User.query.get_or_404(id)
+
+    examiner.is_examiner = False
+
+    db.session.commit()
+
+    flash("Examiner Rejected")
+
+    return redirect(url_for("view_examiners"))
 
 
 
