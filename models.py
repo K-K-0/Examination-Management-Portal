@@ -27,6 +27,7 @@ class Examination(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey("courses.id"), nullable=False)
+    examiner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     exam_type = db.Column(db.String(30))
     duration = db.Column(db.Integer)
@@ -36,6 +37,11 @@ class Examination(db.Model):
     booking_start = db.Column(db.Date)
     booking_end = db.Column(db.Date)
     status = db.Column(db.String(30))
+    examiner = db.relationship(
+        "User",
+        foreign_keys=[examiner_id],
+        backref="assigned_examinations"
+    )
 
 class Rubric(db.Model):
     __tablename__ = "rubrics"
@@ -59,6 +65,16 @@ class ExaminationSlot(db.Model):
     capacity = db.Column(db.Integer)
     available_seats = db.Column(db.Integer)
     status = db.Column(db.String(30), default="Available")
+    examination = db.relationship(
+        "Examination",
+        backref="slots"
+    )
+
+    examiner = db.relationship(
+        "User",
+        foreign_keys=[examiner_id],
+        backref="examiner_slots"
+    )
 
 class Booking(db.Model):
     __tablename__ = "bookings"
