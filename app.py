@@ -704,6 +704,21 @@ def cancel_booking(id):
     return redirect(url_for("student_bookings"))
 
 
+@app.route("/examiner/slots")
+@login_required
+def examiner_slots():
+    if current_user.role != "examiner":
+        return redirect(url_for("login"))
+
+    slots = ExaminationSlot.query.filter_by(
+        examiner_id=current_user.id
+    ).all()
+
+    return render_template("examiner/slots.html", slots=slots)
+
+
+
+
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
