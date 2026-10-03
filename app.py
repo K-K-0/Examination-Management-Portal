@@ -665,6 +665,23 @@ def book_slot(slot_id):
 
 
 
+@app.route("/students/bookings")
+@login_required
+def student_bookings():
+    if current_user.role != "student":
+        return redirect(url_for("login"))
+
+    bookings = Booking.query.filter_by(
+        student_id=current_user.id
+    ).order_by(
+        Booking.booking_date.desc()
+    ).all()
+
+    return render_template("student/bookings.html", bookings=bookings)
+
+    
+
+
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
