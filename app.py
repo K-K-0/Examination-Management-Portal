@@ -717,6 +717,53 @@ def examiner_slots():
     return render_template("examiner/slots.html", slots=slots)
 
 
+@app.route("/examiner/slots/<int:id>/student")
+@login_required
+def examiner_slots(id):
+    if current_user.role != "examiner":
+        return redirect(url_for("login"))
+
+    slot = ExaminationSlot.query.get_or_404(id)
+    booking = Booking.query.filter_by(slot_id=slot.id, status="Booked").all()
+
+    return render_template("examiner/students.html", slot=slot, booking=booking)
+
+
+@app.route("/examiner/evaluate/<int:id>", methods=["GET", "POST"])
+@login_required
+def evaluate_student(id):
+    if current_user.role != "examiner":
+        return redirect(url_for("login"))
+
+    booking = Booking.query.get_or_404(id)
+
+    if request.method == "POST":
+
+        booking.marks = request.form["marks"]
+        booking.note  = request.form["note"]
+
+        booking.status = "Completed"
+
+        db.session.commit()
+
+        flash("Evaluation Successfull")
+
+        return redirect(url_for("slot_students", slot_id=booking.slot_id))
+
+    return render_template("examiner/evaluate.html", booking=booking)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 with app.app_context():
