@@ -812,7 +812,7 @@ def admin_dashboard():
     )
 
 
-@app.route("/admin/dashboard")
+@app.route("/admin/search")
 @login_required
 def admin_search():
 
@@ -838,6 +838,16 @@ def admin_search():
     return render_template("admin/search.html", students=students, examiners=examiners, examinations=examinations, q=q)
 
 
+@app.route("/admin/bookings")
+@login_required
+def admin_bookings():
+
+    if current_user.role != "admin":
+        return redirect(url_for("login"))
+
+    bookings = Booking.query.all()
+
+    return render_template("admin/bookings.html", bookins=bookings)
 
 
 
