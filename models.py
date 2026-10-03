@@ -86,3 +86,6 @@ class Booking(db.Model):
     status = db.Column(db.String(30), default="Booked")
     marks = db.Column(db.Integer)
     note = db.Column(db.Text)
+
+    student = db.relationship("users", foreign_key=[student_id], backref="bookings")
+    slot = db.relationship("slots", backref="bookings")

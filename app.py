@@ -2,6 +2,7 @@ from flask import Flask
 from models import db, User, Booking, Course, Examination, ExaminationSlot, Rubric
 from flask import render_template, request, redirect, url_for, flash, Blueprint
 from flask_login import LoginManager , login_user, login_required, logout_user, current_user
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -578,7 +579,89 @@ def view_exam_slot(id):
         status="Open"
     ).all()
 
-    return render_template("student/slots.html", exam=exam, slots=slots)
+    return render_template("student/slots.html", exam=exam, slot=slot)
+
+@app.route("/student/slot/book/<int:slot_id>", methods=["POST"])
+@login_required
+def book_slot(slot_id):
+
+    if current_user.role != "student":
+        return redirect(url_for("login"))
+
+    slot = ExaminationSlot.query.get_or_404(slot_id)
+    exam = slot.examination
+
+    current_date = datetime.now().date()
+
+    if current_date < exam.booking_start:
+        flash("Booking period has not started.", "danger")
+        return redirect(
+            url_for("view_exam_slots", exam_id=exam.id)
+        )
+
+    if current_date > exam.booking_end:
+        flash("Booking period has ended.", "danger")
+        return redirect(
+            url_for("view_exam_slots", exam_id=exam.id)
+        )
+
+    if slot.status != "Open":
+        flash("This slot is not available.", "danger")
+        return redirect(
+            url_for("view_exam_slots", exam_id=exam.id)
+        )
+
+    if slot.available_seats <= 0:
+        slot.status = "Closed"
+        db.session.commit()
+
+        flash("This slot is full.", "danger")
+
+        return redirect(
+            url_for("view_exam_slots", exam_id=exam.id)
+        )
+
+    existing_booking = Booking.query.join(
+        ExaminationSlot
+    ).filter(
+        Booking.student_id == current_user.id,
+        ExaminationSlot.examination_id == exam.id,
+        Booking.status == "Booked"
+    ).first()
+
+    if existing_booking:
+        flash(
+            "You have already booked a slot for this examination.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("view_exam_slots", exam_id=exam.id)
+        )
+
+    booking = Booking(
+        student_id=current_user.id,
+        slot_id=slot_id,
+        booking_date=datetime.now(),
+        status="Booked",
+        marks=None,
+        note=None
+    )
+
+    db.session.add(booking)
+
+    slot.available_seats -= 1
+
+    if slot.available_seats == 0:
+        slot.status = "Closed"
+
+    db.session.commit()
+
+    flash("Slot Booked Successfully!", "success")
+
+    return redirect(
+        url_for("view_exam_slots", exam_id=exam.id)
+    )
 
 
 
