@@ -767,6 +767,29 @@ def student_result():
     return render_template("student/result.html", bookings=bookings)
 
 
+@app.route("/admin/examination/assign/<int:id>", methods=["GET", "POST"])
+@login_required
+def assign_examiner(id):
+    if current_user.role != "admin":
+        return redirect(url_for("login"))
+
+    exam = Examination.query.get_or_404(id)
+    examiners = User.query.filter_by(
+        role="examiner",
+        is_examiner=True
+    ).all()
+
+    if request.method == "POST":
+
+        exam.examiner_id = request.form["examiners"]
+
+        db.session.commit()
+
+        flash("examiners Assigned")
+        return redirect(url_for("view-examinations"))
+    return render_template("admin/assign_examiner.html", exam=exam, examiners=examiners)
+
+
 
 
 
