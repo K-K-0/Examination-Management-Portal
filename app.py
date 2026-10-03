@@ -367,13 +367,68 @@ def examiner_dashboard():
     return render_template("examiner/dashboard.html", examinations=examinations, slots=slots)
 
 
+@app.route("/examiner/slot/add", methods=["POST", "GET"])
+@login_required
+def add_slot():
+    if current_user.role != 'examiner':
+        return redirect(url_for("login"))
 
+    examinations = Examination.query.filter_by(
+        examiner_id=current_user.id
+    ).all()
 
+    if request.method == "POST":
 
+        examination = Examination.query.get_or_404(request.form["examination"])
 
+        if examination.examiner_id != current_user.id:
+            flash("You are not assigned to this examination.", "danger")
+            return redirect(url_for("examiner_dashboard"))
 
+        from datetime import datetime
 
+        current_date = datetime.now().date()
 
+        if current_date < examination.slot_creation_start:
+            flash("Slot creation period has not started.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        if current_date < examination.slot_creation_end:
+            flash("Slot creation period has ended.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        slot_date = datetime.strptime(
+            request.form["date"],
+            "%Y-%m-%d"
+        ).date()
+
+        start_time = datetime.strptime(
+            request.form["start_time"],
+            "%H:%M"
+        ).time()
+
+        end_time = datetime.strptime(
+            request.form["end_time"],
+            "%H:%M"
+        ).time()
+        capacity = int(request.form["ccapacity"])
+        slot = ExaminationSlot(
+            examination_id=examination.id,
+            examiner_id=current_user.id,
+            date=slot_date,
+            start_time=start_time,
+            end_time=end_time,
+            capacity=capacity,
+            available_seats=capacity,
+            status="Open"
+        )
+
+        db.session.add(slot)
+        db.sesion.commit()
+
+        flash("Slot created successfully", "success")
+        return redirect(url_for("examiner_dashboard"))
+    return render_template("examiner/add_slot", examinations=examinations)
 
 
 with app.app_context():
