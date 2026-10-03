@@ -849,8 +849,16 @@ def admin_bookings():
 
     return render_template("admin/bookings.html", bookins=bookings)
 
+@app.route("/admin/slots")
+@login_required
+def admin_slots():
 
+    if current_user.role != "admin":
+        return redirect(url_for("login"))
 
+    slots = ExaminationSlot.query.all()
+
+    return render_template("admin/slots.html", slots=slots)
 
 
 with app.app_context():
