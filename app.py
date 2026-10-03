@@ -355,6 +355,18 @@ def disapprove_examiner(id):
 
 
 
+@app.route("/examiner/dashboard")
+@login_required
+def examiner_dashboard():
+    if current_user.role != 'examiner':
+        return redirect(url_for("login"))
+
+    examinations = Examination.query.filter_by(examiner_id=current_user.id).all()
+    slots = ExaminationSlot.query.filter_by(examiner_id=current_user.id).all()
+
+    return render_template("examiner/dashboard.html", examinations=examinations, slots=slots)
+
+
 
 
 
