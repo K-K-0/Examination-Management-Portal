@@ -679,7 +679,29 @@ def student_bookings():
 
     return render_template("student/bookings.html", bookings=bookings)
 
-    
+@app.route("/student/booking/cancel/<int:id>", method=["POST"])
+@login_required
+def cancel_booking(id):
+
+    if current_user != "student":
+        return redirect(url_for("login"))
+
+    booking = Booking.query.get_or_404(id)
+    if booking.status == "Cancelled":
+        flash("This booking is already cancelled")
+        return redirect(url_for("students_bookings"))
+    booking.status = "Cancelled"
+
+    booking.slot.available_seats += 1
+
+    if booking.slot.status == "Closed" and booking.slot.available_seats > 0:
+        booking.slot.status = "Open"
+
+    db.session.commit()
+
+    flash("Booking Cancelled Successfully")
+
+    return redirect(url_for("student_bookings"))
 
 
 with app.app_context():
