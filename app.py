@@ -798,19 +798,12 @@ def admin_dashboard():
         return redirect(url_for("login"))
 
     data = {
-
         "students": User.query.filter_by(role="student").count(),
-
         "examiners": User.query.filter_by(role="examiner").count(),
-
         "courses": Course.query.count(),
-
         "examinations": Examination.query.count(),
-
         "slots": ExaminationSlot.query.count(),
-
         "bookings": Booking.query.count()
-
     }
 
     return render_template(
@@ -819,8 +812,30 @@ def admin_dashboard():
     )
 
 
+@app.route("/admin/dashboard")
+@login_required
+def admin_search():
 
+    if current_user.role != "admin":
+        return redirect(url_for("login"))
 
+    q = request.args.get("q","")
+
+    students = User.query.filter(
+        User.role=="student",
+        User.name.ilike(f"{q}")
+    ).all()
+
+    examiners = User.query.filter(
+        User.role=="examiner",
+        User.name.ilike(f"{q}")
+    ).all()
+
+    examinations = Examination.query.filter(
+        Examination.name.ilike(f"{q}")
+    ).all()
+
+    return render_template("admin/search.html", students=students, examiners=examiners, examinations=examinations, q=q)
 
 
 
