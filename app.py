@@ -496,6 +496,49 @@ def edit_slot(id):
     return render_template("examiner/add_slot.html", slot=slot)
 
 
+@app.route("/examiner/slot/delete/<int:id>", methods=["POST", "GET"])
+@login_required
+def delete_slot(id):
+    if current_user.role != 'examiner':
+        return redirect(url_for("login"))
+
+    slot = ExaminationSlot.query.get_or_404(id)
+    
+
+    if request.method == "POST":
+
+        examination = slot.examination
+
+        if examination.examiner_id != current_user.id:
+            flash("You are not assigned to this examination.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        from datetime import datetime
+
+        current_date = datetime.now().date()
+
+        if current_date < examination.slot_creation_start:
+            flash("Slot creation period has not started.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        if current_date < examination.slot_creation_end:
+            flash("Slot creation period has ended.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        if len(slot.bookings) > 0:
+            flash("Don't delete slot that has already booked")
+            return redirect(url_for("examiner_dashboard"))
+
+        db.session.delete(slot)
+        db.session.commit()
+
+        flash("slot deleted successfully")
+        return redirect(url_for("examiner_dashboard"))
+
+    
+
+
+
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
