@@ -790,6 +790,34 @@ def assign_examiner(id):
     return render_template("admin/assign_examiner.html", exam=exam, examiners=examiners)
 
 
+@app.route("/admin/dashboard")
+@login_required
+def admin_dashboard():
+
+    if current_user.role != "admin":
+        return redirect(url_for("login"))
+
+    data = {
+
+        "students": User.query.filter_by(role="student").count(),
+
+        "examiners": User.query.filter_by(role="examiner").count(),
+
+        "courses": Course.query.count(),
+
+        "examinations": Examination.query.count(),
+
+        "slots": ExaminationSlot.query.count(),
+
+        "bookings": Booking.query.count()
+
+    }
+
+    return render_template(
+        "admin/dashboard.html",
+        data=data
+    )
+
 
 
 
