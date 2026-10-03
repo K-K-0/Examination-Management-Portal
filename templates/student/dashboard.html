@@ -17,6 +17,29 @@
 
         <h4>Available Examinations</h4>
 
+        <form method="GET" class="mb-4">
+
+            <div class="input-group">
+
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Search examination or course"
+                    value="{{ search }}"
+                >
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Search
+                </button>
+
+            </div>
+
+        </form>
+
         <table class="table table-bordered table-hover mt-3">
 
             <thead class="table-dark">

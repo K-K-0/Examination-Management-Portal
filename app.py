@@ -536,6 +536,49 @@ def delete_slot(id):
         return redirect(url_for("examiner_dashboard"))
 
     
+@app.route("/student/dashboard")
+@login_required
+def student_dashboard():
+
+    if current_user.role != "student":
+        return redirect(url_for("login"))
+
+    search = request.args.get("search", "").strip()
+
+    if search:
+        examinations = Examination.query.join(Course).filter(
+            Examination.status == "Active",
+            (
+                Examination.name.ilike(f"%{search}%") |
+                Course.name.ilike(f"%{search}%") | 
+                Course.code.ilike(f"%{search}%")
+            )
+        ).all()
+    else:
+        examinations = Examination.query.filter_by(
+            status="Active"
+        ).all()
+
+    return render_template(
+        "student/dashboard.html",
+        examinations=examinations,
+        search=search
+    )
+
+@app.route("/student/exam/<int:id>/slots")
+@login_required
+def view_exam_slot(id):
+    if current_user.role != "student":
+        return redirect(url_for("login"))
+
+    exam = Examination.query.get_or_404(id)
+
+    slot = Examination.query.filter_by(
+        examination_id=exam.id,
+        status="Open"
+    ).all()
+
+    return render_template("student/slots.html", exam=exam, slots=slots)
 
 
 
