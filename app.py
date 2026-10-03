@@ -753,7 +753,18 @@ def evaluate_student(id):
     return render_template("examiner/evaluate.html", booking=booking)
 
 
+@app.route("/student/result")
+@login_required
+def student_result():
+    if current_user.role != "student":
+        return redirect(url_for("login"))
 
+    bookings = Booking.query.filter(
+        Booking.student_id == current_user.id,
+        Booking.status == "Completed"
+    ).all()
+
+    return render_template("student/result.html", bookings=bookings)
 
 
 
