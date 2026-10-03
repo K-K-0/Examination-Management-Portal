@@ -428,7 +428,72 @@ def add_slot():
 
         flash("Slot created successfully", "success")
         return redirect(url_for("examiner_dashboard"))
-    return render_template("examiner/add_slot", examinations=examinations)
+    return render_template("examiner/add_slot.html", examinations=examinations)
+
+
+@app.route("/examiner/slot/edit/<int:id>", methods=["POST", "GET"])
+@login_required
+def edit_slot(id):
+    if current_user.role != 'examiner':
+        return redirect(url_for("login"))
+
+    
+
+    slot = ExaminationSlot.query.get_or_404(id)
+    
+
+    if request.method == "POST":
+
+        examination = slot.examination
+
+        if examination.examiner_id != current_user.id:
+            flash("You are not assigned to this examination.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        from datetime import datetime
+
+        current_date = datetime.now().date()
+
+        if current_date < examination.slot_creation_start:
+            flash("Slot creation period has not started.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        if current_date < examination.slot_creation_end:
+            flash("Slot creation period has ended.", "danger")
+            return redirect(url_for("examiner_dashboard"))
+
+        slot_date = datetime.strptime(
+            request.form["date"],
+            "%Y-%m-%d"
+        ).date()
+
+        start_time = datetime.strptime(
+            request.form["start_time"],
+            "%H:%M"
+        ).time()
+
+        end_time = datetime.strptime(
+            request.form["end_time"],
+            "%H:%M"
+        ).time()
+        new_capacity = int(request.form["ccapacity"])
+        booked_count = len(slot.bookings)
+
+        if new_capacity < booked_count:
+            flash(
+                "Capacity cannot be less than already booked students.",
+                "danger"
+            )
+            return redirect(url_for("edit_slot", id=id))
+        
+        slot.capacity = new_capacity
+        slot.available_seats = new_capacity - booked_count
+
+        db.sesion.commit()
+
+        flash("Slot updated successfully", "success")
+        return redirect(url_for("examiner_dashboard"))
+    return render_template("examiner/add_slot.html", slot=slot)
 
 
 with app.app_context():
