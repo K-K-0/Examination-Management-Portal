@@ -87,5 +87,5 @@ class Booking(db.Model):
     marks = db.Column(db.Integer)
     note = db.Column(db.Text)
 
-    student = db.relationship("users", foreign_key=[student_id], backref="bookings")
-    slot = db.relationship("slots", backref="bookings")
+    student = db.relationship("User", backref="bookings")
+    slot = db.relationship("ExaminationSlot", backref="bookings")

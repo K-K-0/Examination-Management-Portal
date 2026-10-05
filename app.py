@@ -4,7 +4,8 @@ from flask import render_template, request, redirect, url_for, flash, Blueprint
 from flask_login import LoginManager , login_user, login_required, logout_user, current_user
 from datetime import datetime
 
-app = Flask(__name__)
+# app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///emp.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -20,10 +21,10 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
 auth = Blueprint('auth', __name__)
+
     
-@auth.route('/', methods=['POST', 'GET'])
+@auth.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
         name = request.form["name"]
@@ -33,13 +34,13 @@ def register():
         
         if User.query.filter_by(email=email).first():
             flash('username already registered')
-            return redirect(url_for('register'))
+            return redirect(url_for('auth.register'))
         
         new_user = User(name=name,email=email, password=password, role=role)
         db.session.add(new_user)
         db.session.commit()
         flash('Registration successfully. pls login')
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     
     return render_template('register.html') 
     
@@ -59,10 +60,10 @@ def login():
         flash('logged in successfully')
     
     
-        if user.is_admin:
+        if user.email == "admin@gmail.com":
             return redirect(url_for('auth.admin_dashboard'))
         else:
-            return redirect(url_for('auth.user_dashboard'))  
+            return redirect(url_for('student_dashboard'))  
         
     return render_template('login.html')
 
@@ -183,7 +184,7 @@ def add_examinations():
 
 @app.route("/admin/examination/edit/<int:id>", methods=["GET", "POST"])
 @login_required
-def add_examinations(id):
+def edit_examinations(id):
     if current_user.role != 'admin':
         return redirect(url_for("login"))
 
@@ -297,7 +298,7 @@ def edit_rubrics(id):
 
 @app.route("/admin/rubrics/delete/<int:id>")
 @login_required
-def edit_rubrics(id):
+def delete_rubrics(id):
     if current_user.role != 'admin':
         return redirect(url_for("login"))
     
@@ -542,7 +543,7 @@ def delete_slot(id):
 def student_dashboard():
 
     if current_user.role != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     search = request.args.get("search", "").strip()
 
@@ -663,8 +664,6 @@ def book_slot(slot_id):
         url_for("view_exam_slots", exam_id=exam.id)
     )
 
-
-
 @app.route("/students/bookings")
 @login_required
 def student_bookings():
@@ -679,7 +678,7 @@ def student_bookings():
 
     return render_template("student/bookings.html", bookings=bookings)
 
-@app.route("/student/booking/cancel/<int:id>", method=["POST"])
+@app.route("/student/booking/cancel/<int:id>", methods=["POST"])
 @login_required
 def cancel_booking(id):
 
@@ -719,7 +718,7 @@ def examiner_slots():
 
 @app.route("/examiner/slots/<int:id>/student")
 @login_required
-def examiner_slots(id):
+def slot_student(id):
     if current_user.role != "examiner":
         return redirect(url_for("login"))
 
@@ -860,7 +859,7 @@ def admin_slots():
 
     return render_template("admin/slots.html", slots=slots)
 
-
+app.register_blueprint(auth)
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
