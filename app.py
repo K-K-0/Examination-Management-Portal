@@ -14,7 +14,7 @@ app.config["SECRET_KEY"] = "Nothing"
 db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "auth.login"
 
 
 @login_manager.user_loader
@@ -46,33 +46,33 @@ def register():
     
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
         
         user = User.query.filter_by(email=email, password=password).first()
         
         if not user:
             flash('Invalid credentials')
-            return redirect(url_for('login'))
+            return redirect(url_for("auth.login"))
         
         login_user(user)
         flash('logged in successfully')
     
-    
+        print("hello")
         if user.email == "admin@gmail.com":
-            return redirect(url_for('auth.admin_dashboard'))
-        else:
-            return redirect(url_for('student_dashboard'))  
+            return redirect(url_for("admin_dashboard"))
         
-    return render_template('login.html')
+        return redirect(url_for("auth.student_dashboard"))  
+        
+    return render_template("login.html")
 
 
 @app.route("/admin/courses")
 @login_required
 def view_courses():
     if current_user.role != 'admin':
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     courses = Course.query.all()
     return render_template("admin/courses.html", courses=courses)
@@ -98,12 +98,12 @@ def add_courses():
         flash("course added successfully", "success")
         return redirect(url_for("view_courses"))
 
-    return render_template("admin/add_course.html")
+    return render_template("admin/add_courses.html")
 
 @app.route("/admin/courses/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 
-def edit_courses(id):
+def edit_course(id):
     if current_user.role != 'admin':
         return redirect(url_for("login"))
 
@@ -147,7 +147,7 @@ def view_examinations():
 
     examinations = Examination.query.all()
 
-    return render_template("admin/examination.html", examinations=examinations)
+    return render_template("admin/examinations.html", examinations=examinations)
 
 
 @app.route("/admin/examination/add", methods=["GET", "POST"])
@@ -864,7 +864,7 @@ with app.app_context():
     db.create_all()
     if not User.query.filter_by(email="admin@gmail.com").first():
         from werkzeug.security import generate_password_hash
-        admin = User(name='admin', email='admin@gmail.com', password=generate_password_hash('admin'), role='admin')
+        admin = User(name='admin', email='admin@gmail.com', password='admin', role='admin')
         db.session.add(admin)
         db.session.commit()
         
