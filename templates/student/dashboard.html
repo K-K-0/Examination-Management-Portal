@@ -13,12 +13,16 @@
 
     <div class="container mt-4">
 
-        <h2 class="mb-4">Student Dashboard</h2>
-        <a
-            href="{{ url_for('student_bookings') }}"
-            class="btn btn-success mb-3"
-        >
+        <h2 class="mb-4">
+            Student Dashboard
+        </h2>
+
+        <a href="{{ url_for('student_bookings') }}" class="btn btn-success mb-3">
             My Bookings
+        </a>
+
+        <a href="{{ url_for('student_results') }}" class="btn btn-info mb-3">
+            My Results
         </a>
         <h4>Available Examinations</h4>
 
@@ -26,18 +30,10 @@
 
             <div class="input-group">
 
-                <input
-                    type="text"
-                    name="search"
-                    class="form-control"
-                    placeholder="Search examination or course"
-                    value="{{ search }}"
-                >
+                <input type="text" name="search" class="form-control" placeholder="Search examination or course"
+                    value="{{ search }}">
 
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
+                <button type="submit" class="btn btn-primary">
                     Search
                 </button>
 

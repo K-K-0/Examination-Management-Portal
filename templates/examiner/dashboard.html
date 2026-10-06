@@ -13,8 +13,14 @@
 
         <h2 class="mb-4">Examiner Dashboard</h2>
 
-        
 
+        <a href="{{ url_for('examiner_slots') }}" class="btn btn-primary mb-3">
+            View My Slots / Students
+        </a>
+
+        <a href="{{ url_for('add_slot') }}" class="btn btn-success mb-3">
+            Create Slot
+        </a>
         <h4>Assigned Examinations</h4>
 
         <table class="table table-bordered table-hover">
