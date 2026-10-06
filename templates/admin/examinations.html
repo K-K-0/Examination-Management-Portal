@@ -13,6 +13,12 @@
     <a href="{{ url_for('add_examination') }}" class="btn btn-primary mb-3">
         Add Examination
     </a>
+    <a
+        href="{{ url_for('assign_examiner', id=exam.id) }}"
+        class="btn btn-warning btn-sm"
+    >
+        Assign Examiner
+    </a>
 
     <table class="table table-bordered table-hover">
 

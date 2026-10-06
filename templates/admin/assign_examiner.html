@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Assign Examiner</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container mt-4">
+
+        <h2 class="mb-4">Assign Examiner</h2>
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    {{ exam.name }}
+                </h5>
+
+                <p>
+                    Course:
+                    <strong>{{ exam.course.name }}</strong>
+                </p>
+
+                <form method="POST">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Select Examiner
+                        </label>
+
+                        <select name="examiner" class="form-select" required>
+
+                            <option value="">
+                                Select Examiner
+                            </option>
+
+                            {% for examiner in examiners %}
+
+                            <option value="{{ examiner.id }}" {% if exam.examiner_id==examiner.id %} selected {% endif
+                                %}>
+                                {{ examiner.name }} - {{ examiner.email }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        Assign Examiner
+                    </button>
+
+                    <a href="{{ url_for('view_examinations') }}" class="btn btn-secondary">
+                        Back
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
