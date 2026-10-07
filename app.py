@@ -371,7 +371,7 @@ def examiner_dashboard():
     return render_template("examiner/dashboard.html", examinations=examinations, slots=slots)
 
 
-@app.route("/examiner/slot/add", methods=["POST", "GET"])
+@app.route("/examiner/slot/create", methods=["GET", "POST"])
 @login_required
 def add_slot():
     if current_user.role != 'examiner':
@@ -380,10 +380,11 @@ def add_slot():
     examinations = Examination.query.filter_by(
         examiner_id=current_user.id
     ).all()
+    
 
     if request.method == "POST":
-
-        examination = Examination.query.get_or_404(request.form["examination"])
+        id = request.form.get("examination")
+        examination = Examination.query.get_or_404(id)
 
         if examination.examiner_id != current_user.id:
             flash("You are not assigned to this examination.", "danger")
@@ -397,7 +398,7 @@ def add_slot():
             flash("Slot creation period has not started.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
-        if current_date < examination.slot_creation_end:
+        if current_date > examination.slot_creation_end:
             flash("Slot creation period has ended.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
@@ -415,7 +416,7 @@ def add_slot():
             request.form["end_time"],
             "%H:%M"
         ).time()
-        capacity = int(request.form["ccapacity"])
+        capacity = int(request.form["capacity"])
         slot = ExaminationSlot(
             examination_id=examination.id,
             examiner_id=current_user.id,
@@ -428,7 +429,7 @@ def add_slot():
         )
 
         db.session.add(slot)
-        db.sesion.commit()
+        db.session.commit()
 
         flash("Slot created successfully", "success")
         return redirect(url_for("examiner_dashboard"))
