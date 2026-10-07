@@ -60,10 +60,12 @@ def login():
         flash('logged in successfully')
     
         print("hello")
-        if user.email == "admin@gmail.com":
+        if user.role == "admin":
             return redirect(url_for("admin_dashboard"))
+        elif user.role == "examiner":
+            return redirect(url_for("examiner_dashboard"))
         
-        return redirect(url_for("auth.student_dashboard"))  
+        return redirect(url_for("student_dashboard"))  
         
     return render_template("login.html")
 
@@ -267,7 +269,7 @@ def add_rubrics():
 
         return redirect(url_for("view_rubrics"))
 
-    return render_template("admin/add_rubric.html", exam=exam)
+    return render_template("admin/add_rubrics.html", exam=exam)
 
 @app.route("/admin/rubrics/edit/<int:id>", methods=["GET", "POST"])
 @login_required
@@ -319,7 +321,7 @@ def view_examiners():
 
     examiners = User.query.filter_by(role="examiner").all()
 
-    return render_template("admin/examiner", examiners=examiners)
+    return render_template("admin/examiner.html", examiners=examiners)
 
 
 @app.route("/admin/examiner/approve/<int:id>")
@@ -754,7 +756,7 @@ def evaluate_student(id):
 
 @app.route("/student/result")
 @login_required
-def student_result():
+def student_results():
     if current_user.role != "student":
         return redirect(url_for("login"))
 
