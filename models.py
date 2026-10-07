@@ -42,6 +42,10 @@ class Examination(db.Model):
         foreign_keys=[examiner_id],
         backref="assigned_examinations"
     )
+    course = db.relationship(
+        "Course",
+        backref="examinations"
+    )
 
 class Rubric(db.Model):
     __tablename__ = "rubrics"

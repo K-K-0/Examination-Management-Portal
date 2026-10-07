@@ -21,16 +21,14 @@
 
                 <label>Course</label>
 
-                <select name="course" class="form-select">
+                <select name="course_id" class="form-select" required>
+                    <option value="">Select Course</option>
 
                     {% for course in courses %}
-
                     <option value="{{ course.id }}">
                         {{ course.name }}
                     </option>
-
                     {% endfor %}
-
                 </select>
 
             </div>
@@ -44,7 +42,7 @@
 
                 <label>Examination Type</label>
 
-                <select name="type" class="form-select">
+                <select name="exam_type" class="form-select">
 
                     <option>Viva</option>
                     <option>Practical</option>
@@ -62,7 +60,7 @@
 
             <div class="mb-3">
                 <label>Maximum Marks</label>
-                <input type="number" name="marks" class="form-control">
+                <input type="number" name="max_marks" class="form-control">
             </div>
 
             <div class="mb-3">

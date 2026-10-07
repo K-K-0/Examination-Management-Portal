@@ -67,7 +67,7 @@
 
                     <td>
 
-                        {% if examiner.approved %}
+                        {% if examiner.is_examiner %}
 
                         <a href="{{ url_for('disapprove_examiner', id=examiner.id) }}" class="btn btn-danger btn-sm"
                             onclick="return confirm('Deactivate this examiner?')">

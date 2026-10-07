@@ -148,6 +148,7 @@ def view_examinations():
         return redirect(url_for("login"))
 
     examinations = Examination.query.all()
+    print(examinations)
 
     return render_template("admin/examinations.html", examinations=examinations)
 
@@ -163,15 +164,15 @@ def add_examinations():
     if request.method == "POST":
 
         exam = Examination(
-            course_id=request.form["course_id"],
-            name=request.form("name"),
+            course_id=int(request.form["course_id"]),
+            name=request.form["name"],
             exam_type=request.form["exam_type"],
-            duration=request.form["duration"],
-            max_marks=request.form["max_marks"],
-            slot_creation_start=request.form["slot_start"],
-            slot_creation_end=request.form["slot_end"],
-            booking_start=request.form["booking_start"],
-            booking_end=request.form["booking_end"],
+            duration=int(request.form["duration"]),
+            max_marks=int(request.form["max_marks"]),
+            slot_creation_start=datetime.strptime(request.form["slot_start"], '%Y-%m-%d').date(),
+            slot_creation_end=datetime.strptime(request.form["slot_end"], '%Y-%m-%d').date(),
+            booking_start=datetime.strptime(request.form["booking_start"], '%Y-%m-%d').date(),
+            booking_end=datetime.strptime(request.form["booking_end"], '%Y-%m-%d').date(),
             status=request.form["status"]
         )
 
@@ -180,7 +181,7 @@ def add_examinations():
 
         flash("exam created successfully", "success")
 
-        return redirect(url_for("view_examination"))
+        return redirect(url_for("view_examinations"))
 
     return render_template("admin/add_examination.html", courses=courses)
 
@@ -212,7 +213,7 @@ def edit_examinations(id):
 
         flash("exam updated successfully", "success")
 
-        return redirect(url_for("view_examination"))
+        return redirect(url_for("view_examinations"))
 
     return render_template("admin/add_examination.html", courses=courses, exam=exam)
 
@@ -230,7 +231,7 @@ def delete_examinations(id):
 
     flash("exam deleted successfully", "success")
 
-    return redirect(url_for("view_examination"))
+    return redirect(url_for("view_examinations"))
 
 
 
@@ -371,24 +372,29 @@ def examiner_dashboard():
     return render_template("examiner/dashboard.html", examinations=examinations, slots=slots)
 
 
-@app.route("/examiner/slot/create", methods=["GET", "POST"])
+@app.route("/examiner/create-slot", methods=["GET", "POST"])
 @login_required
-def add_slot():
-    if current_user.role != 'examiner':
+def create_exam_slot():
+
+    if current_user.role != "examiner":
         return redirect(url_for("login"))
 
     examinations = Examination.query.filter_by(
         examiner_id=current_user.id
     ).all()
-    
 
     if request.method == "POST":
-        id = request.form.get("examination")
-        examination = Examination.query.get_or_404(id)
 
-        if examination.examiner_id != current_user.id:
-            flash("You are not assigned to this examination.", "danger")
-            return redirect(url_for("examiner_dashboard"))
+        exam_id = request.form.get("examination")
+
+        if not exam_id:
+            flash("Please select an examination.", "danger")
+            return render_template(
+                "examiner/add_slot.html",
+                examinations=examinations
+            )
+
+        examination = Examination.query.get_or_404(int(exam_id))
 
         from datetime import datetime
 
@@ -396,44 +402,43 @@ def add_slot():
 
         if current_date < examination.slot_creation_start:
             flash("Slot creation period has not started.", "danger")
-            return redirect(url_for("examiner_dashboard"))
+            return redirect(url_for("create_exam_slot"))
 
         if current_date > examination.slot_creation_end:
             flash("Slot creation period has ended.", "danger")
-            return redirect(url_for("examiner_dashboard"))
+            return redirect(url_for("create_exam_slot"))
 
-        slot_date = datetime.strptime(
-            request.form["date"],
-            "%Y-%m-%d"
-        ).date()
-
-        start_time = datetime.strptime(
-            request.form["start_time"],
-            "%H:%M"
-        ).time()
-
-        end_time = datetime.strptime(
-            request.form["end_time"],
-            "%H:%M"
-        ).time()
-        capacity = int(request.form["capacity"])
         slot = ExaminationSlot(
             examination_id=examination.id,
             examiner_id=current_user.id,
-            date=slot_date,
-            start_time=start_time,
-            end_time=end_time,
-            capacity=capacity,
-            available_seats=capacity,
+            date=datetime.strptime(
+                request.form["date"],
+                "%Y-%m-%d"
+            ).date(),
+            start_time=datetime.strptime(
+                request.form["start_time"],
+                "%H:%M"
+            ).time(),
+            end_time=datetime.strptime(
+                request.form["end_time"],
+                "%H:%M"
+            ).time(),
+            capacity=int(request.form["capacity"]),
+            available_seats=int(request.form["capacity"]),
             status="Open"
         )
 
         db.session.add(slot)
         db.session.commit()
 
-        flash("Slot created successfully", "success")
+        flash("Slot created successfully!", "success")
+
         return redirect(url_for("examiner_dashboard"))
-    return render_template("examiner/add_slot.html", examinations=examinations)
+
+    return render_template(
+        "examiner/add_slot.html",
+        examinations=examinations
+    )
 
 
 @app.route("/examiner/slot/edit/<int:id>", methods=["POST", "GET"])
@@ -783,12 +788,12 @@ def assign_examiner(id):
 
     if request.method == "POST":
 
-        exam.examiner_id = request.form["examiners"]
+        exam.examiner_id = request.form["examiner"]
 
         db.session.commit()
 
         flash("examiners Assigned")
-        return redirect(url_for("view-examinations"))
+        return redirect(url_for("view_examinations"))
     return render_template("admin/assign_examiner.html", exam=exam, examiners=examiners)
 
 
