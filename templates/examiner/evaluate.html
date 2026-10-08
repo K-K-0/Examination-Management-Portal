@@ -61,11 +61,11 @@
                     <div class="mb-3">
 
                         <label class="form-label">
-                            Remarks
+                            Note
                         </label>
 
-                        <textarea name="remarks" class="form-control"
-                            rows="4">{{ booking.remarks if booking.remarks else '' }}</textarea>
+                        <textarea name="note" class="form-control"
+                            rows="4">{{ booking.note if booking.note else '' }}</textarea>
 
                     </div>
 
@@ -75,7 +75,7 @@
                     </button>
 
 
-                    <a href="{{ url_for('slot_students', slot_id=booking.slot_id) }}" class="btn btn-secondary">
+                    <a href="{{ url_for('slot_students', id=booking.slot_id) }}" class="btn btn-secondary">
                         Back
                     </a>
 

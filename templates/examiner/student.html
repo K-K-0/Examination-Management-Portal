@@ -115,7 +115,7 @@
 
                     <td>
 
-                        <a href="{{ url_for('evaluate_student', booking_id=booking.id) }}"
+                        <a href="{{ url_for('evaluate_student', id=booking.id) }}"
                             class="btn btn-primary btn-sm">
 
                             {% if booking.status == "Completed" %}

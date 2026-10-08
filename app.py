@@ -568,8 +568,8 @@ def student_dashboard():
             )
         ).all()
     else:
-        examinations = Examination.query.filter_by(
-            status="Active"
+        examinations = Examination.query.filter(
+            Examination.status.in_(["Active", "Booking Open"])
         ).all()
 
     return render_template(
@@ -580,18 +580,18 @@ def student_dashboard():
 
 @app.route("/student/exam/<int:id>/slots")
 @login_required
-def view_exam_slot(id):
+def view_exam_slots(id):
     if current_user.role != "student":
         return redirect(url_for("login"))
 
     exam = Examination.query.get_or_404(id)
-
-    slot = Examination.query.filter_by(
-        examination_id=exam.id,
-        status="Open"
+    print(exam)
+    slots = ExaminationSlot.query.filter(
+        ExaminationSlot.examination_id == exam.id,
+        ExaminationSlot.status.in_(["Open", "Booking Open", "Active"])
     ).all()
-
-    return render_template("student/slots.html", exam=exam, slot=slot)
+    print(slots)
+    return render_template("student/slots.html", exam=exam, slots=slots)
 
 @app.route("/student/slot/book/<int:slot_id>", methods=["POST"])
 @login_required
@@ -648,7 +648,7 @@ def book_slot(slot_id):
         )
 
         return redirect(
-            url_for("view_exam_slots", exam_id=exam.id)
+            url_for("view_exam_slots", id=exam.id)
         )
 
     booking = Booking(
@@ -758,7 +758,7 @@ def evaluate_student(id):
 
         flash("Evaluation Successfull")
 
-        return redirect(url_for("slot_students", slot_id=booking.slot_id))
+        return redirect(url_for("slot_students", id=booking.slot_id))
 
     return render_template("examiner/evaluate.html", booking=booking)
 

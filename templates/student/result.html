@@ -29,7 +29,7 @@
                 <th>Examination</th>
                 <th>Maximum Marks</th>
                 <th>Marks Obtained</th>
-                <th>Remarks</th>
+                <th>Note</th>
             </tr>
 
         </thead>
@@ -58,13 +58,13 @@
 
             <td>
 
-                {% if booking.remarks %}
+                {% if booking.note %}
 
-                    {{ booking.remarks }}
+                    {{ booking.note }}
 
                 {% else %}
 
-                    No remarks
+                    No Note
                 {% endif %}
 
             </td>
