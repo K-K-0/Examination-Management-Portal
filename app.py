@@ -468,7 +468,7 @@ def edit_slot(id):
             flash("Slot creation period has not started.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
-        if current_date < examination.slot_creation_end:
+        if current_date > examination.slot_creation_end:
             flash("Slot creation period has ended.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
@@ -486,7 +486,7 @@ def edit_slot(id):
             request.form["end_time"],
             "%H:%M"
         ).time()
-        new_capacity = int(request.form["ccapacity"])
+        new_capacity = int(request.form["capacity"])
         booked_count = len(slot.bookings)
 
         if new_capacity < booked_count:
@@ -496,14 +496,17 @@ def edit_slot(id):
             )
             return redirect(url_for("edit_slot", id=id))
         
+        slot.date = slot_date
+        slot.start_time = start_time
+        slot.end_time = end_time
         slot.capacity = new_capacity
         slot.available_seats = new_capacity - booked_count
 
-        db.sesion.commit()
+        db.session.commit()
 
         flash("Slot updated successfully", "success")
         return redirect(url_for("examiner_dashboard"))
-    return render_template("examiner/add_slot.html", slot=slot)
+    return render_template("examiner/edit_slot.html", slot=slot)
 
 
 @app.route("/examiner/slot/delete/<int:id>", methods=["POST", "GET"])
@@ -726,14 +729,14 @@ def examiner_slots():
 
 @app.route("/examiner/slots/<int:id>/student")
 @login_required
-def slot_student(id):
+def slot_students(id):
     if current_user.role != "examiner":
         return redirect(url_for("login"))
 
     slot = ExaminationSlot.query.get_or_404(id)
-    booking = Booking.query.filter_by(slot_id=slot.id, status="Booked").all()
+    bookings = Booking.query.filter_by(slot_id=slot.id, status="Booked").all()
 
-    return render_template("examiner/students.html", slot=slot, booking=booking)
+    return render_template("examiner/student.html", slot=slot, bookings=bookings)
 
 
 @app.route("/examiner/evaluate/<int:id>", methods=["GET", "POST"])
