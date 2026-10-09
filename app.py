@@ -695,7 +695,7 @@ def student_bookings():
 @login_required
 def cancel_booking(id):
 
-    if current_user != "student":
+    if current_user.role != "student":
         return redirect(url_for("auth.login"))
 
     booking = Booking.query.get_or_404(id)
