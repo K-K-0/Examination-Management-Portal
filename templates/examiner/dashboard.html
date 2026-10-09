@@ -113,10 +113,12 @@
                             Edit
                         </a>
 
-                        <a href="{{ url_for('delete_slot', id=slot.id) }}" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Delete this slot?')">
-                            Delete
-                        </a>
+                        
+                        <form action="{{ url_for('delete_slot', id=slot.id) }}" method="POST" style="display: inline;"
+                            onsubmit="return confirm('Delete this slot?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+
 
                     </td>
 
