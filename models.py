@@ -56,6 +56,10 @@ class Rubric(db.Model):
     max_marks = db.Column(db.Integer)
     weightage = db.Column(db.Integer)
     description = db.Column(db.Text)
+    examination = db.relationship(
+            "Examination",
+            backref="rubrics"
+        )
 
 class ExaminationSlot(db.Model):
     __tablename__ = "slots"

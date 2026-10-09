@@ -19,7 +19,8 @@ login_manager.login_view = "auth.login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
+
 
 auth = Blueprint('auth', __name__)
 
@@ -509,7 +510,7 @@ def edit_slot(id):
     return render_template("examiner/edit_slot.html", slot=slot)
 
 
-@app.route("/examiner/slot/delete/<int:id>", methods=["POST", "GET"])
+@app.route("/examiner/slot/delete/<int:id>", methods=["POST"])
 @login_required
 def delete_slot(id):
     if current_user.role != 'examiner':
@@ -534,7 +535,7 @@ def delete_slot(id):
             flash("Slot creation period has not started.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
-        if current_date < examination.slot_creation_end:
+        if current_date > examination.slot_creation_end:
             flash("Slot creation period has ended.", "danger")
             return redirect(url_for("examiner_dashboard"))
 
@@ -547,6 +548,7 @@ def delete_slot(id):
 
         flash("slot deleted successfully")
         return redirect(url_for("examiner_dashboard"))
+    return redirect(url_for("examiner_dashboard"))
 
     
 @app.route("/student/dashboard")
@@ -672,7 +674,7 @@ def book_slot(slot_id):
     flash("Slot Booked Successfully!", "success")
 
     return redirect(
-        url_for("view_exam_slots", exam_id=exam.id)
+        url_for("view_exam_slots", id=exam.id)
     )
 
 @app.route("/students/bookings")
@@ -694,7 +696,7 @@ def student_bookings():
 def cancel_booking(id):
 
     if current_user != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     booking = Booking.query.get_or_404(id)
     if booking.status == "Cancelled":
@@ -833,16 +835,16 @@ def admin_search():
 
     students = User.query.filter(
         User.role=="student",
-        User.name.ilike(f"{q}")
+        User.name.ilike(f"%{q}%")
     ).all()
 
     examiners = User.query.filter(
         User.role=="examiner",
-        User.name.ilike(f"{q}")
+        User.name.ilike(f"%{q}%")
     ).all()
 
     examinations = Examination.query.filter(
-        Examination.name.ilike(f"{q}")
+        Examination.name.ilike(f"%{q}%")
     ).all()
 
     return render_template("admin/search.html", students=students, examiners=examiners, examinations=examinations, q=q)
