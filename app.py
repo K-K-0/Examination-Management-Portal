@@ -378,7 +378,7 @@ def examiner_dashboard():
 def create_exam_slot():
 
     if current_user.role != "examiner":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     examinations = Examination.query.filter_by(
         examiner_id=current_user.id
@@ -446,7 +446,7 @@ def create_exam_slot():
 @login_required
 def edit_slot(id):
     if current_user.role != 'examiner':
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     
 
@@ -514,7 +514,7 @@ def edit_slot(id):
 @login_required
 def delete_slot(id):
     if current_user.role != 'examiner':
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     slot = ExaminationSlot.query.get_or_404(id)
     
@@ -584,7 +584,7 @@ def student_dashboard():
 @login_required
 def view_exam_slots(id):
     if current_user.role != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     exam = Examination.query.get_or_404(id)
     print(exam)
@@ -600,7 +600,7 @@ def view_exam_slots(id):
 def book_slot(slot_id):
 
     if current_user.role != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     slot = ExaminationSlot.query.get_or_404(slot_id)
     exam = slot.examination
@@ -681,7 +681,7 @@ def book_slot(slot_id):
 @login_required
 def student_bookings():
     if current_user.role != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     bookings = Booking.query.filter_by(
         student_id=current_user.id
@@ -720,7 +720,7 @@ def cancel_booking(id):
 @login_required
 def examiner_slots():
     if current_user.role != "examiner":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     slots = ExaminationSlot.query.filter_by(
         examiner_id=current_user.id
@@ -733,7 +733,7 @@ def examiner_slots():
 @login_required
 def slot_students(id):
     if current_user.role != "examiner":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     slot = ExaminationSlot.query.get_or_404(id)
     bookings = Booking.query.filter_by(slot_id=slot.id, status="Booked").all()
@@ -745,7 +745,7 @@ def slot_students(id):
 @login_required
 def evaluate_student(id):
     if current_user.role != "examiner":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     booking = Booking.query.get_or_404(id)
 
@@ -769,7 +769,7 @@ def evaluate_student(id):
 @login_required
 def student_results():
     if current_user.role != "student":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     bookings = Booking.query.filter(
         Booking.student_id == current_user.id,
@@ -783,7 +783,7 @@ def student_results():
 @login_required
 def assign_examiner(id):
     if current_user.role != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     exam = Examination.query.get_or_404(id)
     examiners = User.query.filter_by(
@@ -807,7 +807,7 @@ def assign_examiner(id):
 def admin_dashboard():
 
     if current_user.role != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     data = {
         "students": User.query.filter_by(role="student").count(),
@@ -829,7 +829,7 @@ def admin_dashboard():
 def admin_search():
 
     if current_user.role != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     q = request.args.get("q","")
 
@@ -855,7 +855,7 @@ def admin_search():
 def admin_bookings():
 
     if current_user.role != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     bookings = Booking.query.all()
 
@@ -866,7 +866,7 @@ def admin_bookings():
 def admin_slots():
 
     if current_user.role != "admin":
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     slots = ExaminationSlot.query.all()
 
