@@ -365,7 +365,7 @@ def disapprove_examiner(id):
 @login_required
 def examiner_dashboard():
     if current_user.role != 'examiner':
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     examinations = Examination.query.filter_by(examiner_id=current_user.id).all()
     slots = ExaminationSlot.query.filter_by(examiner_id=current_user.id).all()
