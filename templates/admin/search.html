@@ -12,12 +12,10 @@
 <body>
 
     <div class="container mt-4">
-
         <h2 class="mb-4">
             Search
         </h2>
-
-
+        
         <form method="GET" class="mb-4">
 
             <div class="input-group">
@@ -55,13 +53,9 @@
                 {% for student in students %}
 
                 <tr>
-
                     <td>{{ student.id }}</td>
-
                     <td>{{ student.name }}</td>
-
                     <td>{{ student.email }}</td>
-
                 </tr>
 
                 {% else %}
@@ -77,7 +71,6 @@
             </tbody>
 
         </table>
-
 
         <h4 class="mt-4">
             Examiners
@@ -95,29 +88,22 @@
                 </tr>
 
             </thead>
-
             <tbody>
 
                 {% for examiner in examiners %}
 
                 <tr>
-
                     <td>{{ examiner.id }}</td>
-
                     <td>{{ examiner.name }}</td>
-
                     <td>{{ examiner.email }}</td>
-
                     <td>
 
-                        {% if examiner.approved %}
+                        {% if examiner.is_examiner %}
 
                         <span class="badge bg-success">
                             Approved
                         </span>
-
                         {% else %}
-
                         <span class="badge bg-warning text-dark">
                             Pending
                         </span>
@@ -167,42 +153,30 @@
                 {% for exam in examinations %}
 
                 <tr>
-
                     <td>{{ exam.id }}</td>
-
                     <td>{{ exam.name }}</td>
-
                     <td>{{ exam.course.name }}</td>
-
                     <td>{{ exam.exam_type }}</td>
-
                 </tr>
 
                 {% else %}
 
                 <tr>
-
                     <td colspan="4" class="text-center">
                         No examinations found.
                     </td>
-
                 </tr>
 
                 {% endfor %}
 
             </tbody>
-
         </table>
 
         {% endif %}
 
-
         <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mt-3">
             Back
         </a>
-
     </div>
-
 </body>
-
 </html>
